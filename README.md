@@ -3,8 +3,9 @@ Rapid method to heave up the web server with PHP.
 
 It all tested on:
 
-	Windows XP/7/8.1
+	Windows XP/7/8.1/2012
 	PHP 5.3.27/5.4.25
+	Screen of directory: example.png
 
 
 
