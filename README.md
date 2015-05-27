@@ -5,8 +5,8 @@ It all tested on:
 
 	Windows XP/7/8.1/2012
 	PHP 5.3.27/5.4.25
-	Screen of directory: example.png
 
+![Screen of directory](https://github.com/Vaflan/FastPHPWeb/blob/master/example.png?raw=true)
 
 
 ## Example of the use
