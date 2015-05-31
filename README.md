@@ -10,6 +10,7 @@ It all tested on:
 
 
 ## Example of the use with included PHP
+ - Check your Microsoft Visual C++ 2008 Redistributable Package for PHP
  - Unzip to any empty directory and run main.bat from this directory
 
 
