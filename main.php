@@ -17,13 +17,17 @@ define('FASTPHPWEB_CRLF', "\r\n");
 
 /* Function */
 function console_log($message) {
-	$message = iconv('UTF-8', 'cp866//IGNORE', trim(print_r($message, true)));
+	global $chcp;
+	$message = trim(print_r($message, true));
+	if(!empty($chcp)) {
+		$message = iconv('UTF-8', 'cp'.$chcp.'//IGNORE', $message);
+	}
 	if(func_num_args() > 1) {
 		for($i=1; $i<func_num_args(); $i++) {
 			$message = str_replace('%'.$i.'%', func_get_arg($i), $message);
 		}
 	}
-	echo $log = date('[d.m.Y H:i:s] ').$message."\n";
+	echo $log = date('[d.m.Y H:i:s] ').$message.PHP_EOL;
 	return $log;
 }
 function load_types($file) {
@@ -64,8 +68,7 @@ function response_header($header) {
 	$response_headers[$key] = $header; 
 }
 function fix_php_contents($content, $what, $to) {
-	return preg_replace_callback(
-		"|<\?(?:\s[^>]*)?([^?]+)\?>|i",
+	return preg_replace_callback("|<\?(?:\s[^>]*)?([^?]+)\?>|i",
 		function ($matches) use ($what, $to) {
 			return '<?'.str_replace($what, $to, $matches[1]).'?>';
 		},
@@ -80,9 +83,13 @@ date_default_timezone_set(FASTPHPWEB_TIMEZONE);
 register_shutdown_function('FastPHPWeb\engine\shutdown_service');
 $mime_types = load_types(FASTPHPWEB_MIME_TYPES);
 $socket = stream_socket_server('tcp://0.0.0.0:'.FASTPHPWEB_PORT, $errno, $errstr);
+stream_set_blocking($socket, false);
 $memory_unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
 if(!$socket) {
 	die($errstr.' ('.$errno.')');
+}
+if(strstr(strtolower(PHP_OS), 'win')) {
+	$chcp = trim(array_pop(explode(':', exec('chcp'))));
 }
 console_log('FastPHPWeb started on '.FASTPHPWEB_PORT.' port!');
 
@@ -100,6 +107,7 @@ while(true) {
 
 		if(in_array($socket, $read)) { /* there is new connection */
 			$connect = stream_socket_accept($socket, -1); /* accept new connection */
+			stream_set_blocking($connect, false); /* set asynchronous method */
 			$connects[] = $connect; /* add him to the list necessary for treatment */
 			unset($read[array_search($socket, $read)]);
 		}
@@ -146,8 +154,9 @@ while(true) {
 					$location .= FASTPHPWEB_INDEX;
 				}
 				$location = str_replace('/', DIRECTORY_SEPARATOR, $location);
-				if(substr(DIRECTORY_SEPARATOR, 0 , 1) != DIRECTORY_SEPARATOR)
+				if(substr(DIRECTORY_SEPARATOR, 0 , 1) != DIRECTORY_SEPARATOR) {
 					$location = DIRECTORY_SEPARATOR.$location;
+				}
 
 				$get_request = FASTPHPWEB_CONTENT.$location;
 				$current_file_location = dirname(__FILE__).DIRECTORY_SEPARATOR.FASTPHPWEB_CONTENT.$location;
