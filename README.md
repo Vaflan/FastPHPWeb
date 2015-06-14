@@ -1,5 +1,5 @@
 # FastPHPWeb
-Rapid method to heave up the web server with PHP.
+Rapid method to heave up the web server with PHP. Default port 9000.
 
 It all tested on:
 
@@ -21,6 +21,20 @@ It all tested on:
  - and to start main.bat from this directory
  - or command line: CURRENT_DIR/php.exe -c php.ini main.php 9000
 
+
+
+### Configurations
+ - FASTPHPWEB_PORT: port to listen
+ - FASTPHPWEB_CONTENT: folder directory site
+ - FASTPHPWEB_MIME_TYPES: file type extensions list
+ - FASTPHPWEB_404: a message when 404
+ - FASTPHPWEB_TIMEZONE: setting Time Zone
+ - FASTPHPWEB_EVAL_PHP: extensions executed as PHP
+ - FASTPHPWEB_INDEX: file in the root of the executable as the index
+ - FASTPHPWEB_FAST_THREAD: asynchronous execution, a maximum of 64kb for a response
+ - FASTPHPWEB_SHOW_AGENT: show in the console client request agent
+ - FASTPHPWEB_ERROR_BEEP: the signal when the package or incomprehensible error
+ - FASTPHPWEB_CRLF: separator packet headers
 
 
 ### Sources

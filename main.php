@@ -1,14 +1,15 @@
 <?php
 namespace FastPHPWeb\engine;
-define('FASTPHPWEB_PORT', !empty($argv[1]) ? intval($argv[1]) : '80');
+define('FASTPHPWEB_PORT', !empty($argv[1]) ? intval($argv[1]) : '9000');
 define('FASTPHPWEB_CONTENT', 'web');
 define('FASTPHPWEB_MIME_TYPES', 'mime.types');
 define('FASTPHPWEB_404', '404 Object Not Found');
 define('FASTPHPWEB_TIMEZONE', 'Europe/Riga');
 define('FASTPHPWEB_EVAL_PHP', 'php,phps,phtml');
 define('FASTPHPWEB_INDEX', 'index.php');
-define('FASTPHPWEB_SHOW_AGENT', true);
-define('FASTPHPWEB_ERROR_BEEP', true);
+define('FASTPHPWEB_FAST_THREAD', false);
+define('FASTPHPWEB_SHOW_AGENT', false);
+define('FASTPHPWEB_ERROR_BEEP', false);
 define('FASTPHPWEB_CRLF', "\r\n");
 
 
@@ -59,7 +60,7 @@ function create_response($content, $status, $headers=array()) {
 			'Server: FastPHPWeb' . FASTPHPWEB_CRLF .
 			(count($headers) > 0 ? implode(FASTPHPWEB_CRLF, $headers).FASTPHPWEB_CRLF : '') .
 			'Content-Length: ' . strlen($content) . FASTPHPWEB_CRLF .
-			'Connection: close' . FASTPHPWEB_CRLF .
+			'Connection: keep-alive' . FASTPHPWEB_CRLF .
 			FASTPHPWEB_CRLF . $content;
 }
 function response_header($header) {
@@ -83,7 +84,8 @@ date_default_timezone_set(FASTPHPWEB_TIMEZONE);
 register_shutdown_function('FastPHPWeb\engine\shutdown_service');
 $mime_types = load_types(FASTPHPWEB_MIME_TYPES);
 $socket = stream_socket_server('tcp://0.0.0.0:'.FASTPHPWEB_PORT, $errno, $errstr);
-stream_set_blocking($socket, false);
+if(FASTPHPWEB_FAST_THREAD)
+	stream_set_blocking($socket, false);
 $memory_unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
 if(!$socket) {
 	die($errstr.' ('.$errno.')');
@@ -107,7 +109,8 @@ while(true) {
 
 		if(in_array($socket, $read)) { /* there is new connection */
 			$connect = stream_socket_accept($socket, -1); /* accept new connection */
-			stream_set_blocking($connect, false); /* set asynchronous method */
+			if(FASTPHPWEB_FAST_THREAD)
+				stream_set_blocking($connect, false); /* set asynchronous method */
 			$connects[] = $connect; /* add him to the list necessary for treatment */
 			unset($read[array_search($socket, $read)]);
 		}
@@ -203,7 +206,10 @@ while(true) {
 				else {
 					$response = create_response(FASTPHPWEB_404, 'HTTP/1.0 404 Not Found');
 				}
+
 				fwrite($connect, $response);
+				$response_size = strlen($response);
+				console_log('Response size: '.$response_size.' bytes ('.ceil($response_size/65535).' packets)');
 			}
 			elseif(FASTPHPWEB_ERROR_BEEP) {
 				echo "\x07";
