@@ -151,8 +151,10 @@ while(true) {
 		}
 
 		if(count($header_get) > 2 && strstr(strtolower($header_get[2]), 'http/1.1')) {
-			if(in_array(strtolower($header_get[0]), array('get', 'post'))) {
-				$location = current(explode('?', $header_get[1], 2));
+			$header_get[0] = strtoupper($header_get[0]);
+			$header_get[1] = explode('?', $header_get[1], 2);
+			if(in_array($header_get[0], array('GET', 'POST'))) {
+				$location = $header_get[1][0];
 				if(substr(str_replace('\\', '/', $location), -1) == '/') {
 					$location .= FASTPHPWEB_INDEX;
 				}
@@ -174,6 +176,12 @@ while(true) {
 						$_SERVER['REMOTE_PORT'] = array_pop($remote_addr);
 						$_SERVER['REMOTE_ADDR'] = current($remote_addr);
 						$_SERVER['SERVER_PORT'] = FASTPHPWEB_PORT;
+						$_SERVER['REQUEST_METHOD'] = $header_get[0];
+						$_SERVER['SCRIPT_NAME'] = $header_get[1][0];
+						$_SERVER['QUERY_STRING'] = $header_get[1][1];
+						$_SERVER['REQUEST_URI'] = implode('?', $header_get[1]);
+						parse_str($header_get[1][1], $_GET);
+						$_REQUEST = array_merge((array)$_GET, (array)$_POST, (array)$_COOCKIE);
 						if(count($request_header_array) > 1) {
 							foreach($request_header_array AS $request_header_row) {
 								$request_header_row = explode(':', trim($request_header_row), 2);
