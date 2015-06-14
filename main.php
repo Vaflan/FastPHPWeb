@@ -7,6 +7,7 @@ define('FASTPHPWEB_404', '404 Object Not Found');
 define('FASTPHPWEB_TIMEZONE', 'Europe/Riga');
 define('FASTPHPWEB_EVAL_PHP', 'php,phps,phtml');
 define('FASTPHPWEB_INDEX', 'index.php');
+define('FASTPHPWEB_LOG_REQUEST', false);
 define('FASTPHPWEB_FAST_THREAD', false);
 define('FASTPHPWEB_SHOW_AGENT', false);
 define('FASTPHPWEB_ERROR_BEEP', false);
@@ -124,9 +125,11 @@ while(true) {
 		$response_headers = array();
 
 		$request = '';
-		while($buffer = rtrim(fgets($connect))) {
-			$request .= $buffer."\n";
+		while($buffer = fgets($connect)) {
+			$request .= trim($buffer)."\n";
 		}
+		if(FASTPHPWEB_LOG_REQUEST)
+			file_put_contents('request.log', file_get_contents('request.log').$request.FASTPHPWEB_CRLF.FASTPHPWEB_CRLF.FASTPHPWEB_CRLF);
 
 		$request_header_array = explode("\n", $request);
 		$header_get = explode(' ', trim($request_header_array[0]));
@@ -169,6 +172,10 @@ while(true) {
 					$type = array_pop(explode('.', $get_request));
 					$content = file_get_contents($get_request);
 					if(in_array($type, explode(',', FASTPHPWEB_EVAL_PHP))) {
+						if(strstr($header_get[0], 'POST')) {
+							$request_body = trim(array_pop(explode("\n\n", $request)));
+							parse_str($request_body, $_POST);
+						}
 						$content = fix_php_contents($content, '__FILE__', '\''.$current_file_location.'\'');
 						$content = fix_php_contents($content, '__DIR__', '\''.dirname($current_file_location).'\'');
 						$content = fix_php_contents($content, array(' header(', "\n".'header(', "\t".'header('), array(' \FastPHPWeb\engine\response_header(', "\n".'\FastPHPWeb\engine\response_header(', "\t".'\FastPHPWeb\engine\response_header('));
@@ -233,6 +240,9 @@ while(true) {
 		unset($response_headers);
 		unset($request);
 		unset($content);
+		unset($_REQUEST);
+		unset($_POST);
+		unset($_GET);
 
 		$momory_size = memory_get_peak_usage();
 		console_log('Peak of memory: ' . @round($momory_size/pow(1024,($i=floor(log($momory_size, 1024)))), 2).$memory_unit[$i]);

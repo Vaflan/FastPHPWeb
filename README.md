@@ -5,6 +5,7 @@ It all tested on:
 
 	Windows XP/7/8.1/2012
 	PHP 5.3.27/5.4.25
+	Microsoft Visual C++ 2008 Redistributable
 
 ![Screen of directory](https://github.com/Vaflan/FastPHPWeb/blob/master/example.png?raw=true)
 
@@ -31,6 +32,7 @@ It all tested on:
  - FASTPHPWEB_TIMEZONE: setting Time Zone
  - FASTPHPWEB_EVAL_PHP: extensions executed as PHP
  - FASTPHPWEB_INDEX: file in the root of the executable as the index
+ - FASTPHPWEB_LOG_REQUEST: log all header requests to the server
  - FASTPHPWEB_FAST_THREAD: asynchronous execution, a maximum of 64kb for a response
  - FASTPHPWEB_SHOW_AGENT: show in the console client request agent
  - FASTPHPWEB_ERROR_BEEP: the signal when the package or incomprehensible error
