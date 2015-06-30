@@ -9,6 +9,7 @@ header('Cache-Control: Max-Age=3600');
 	<h1>Hello to FastPHPWeb!</h1>
 	<img src="/favicon.ico" /><br />
 	Go To: <a href="/dir/subindex">SubIndex</a><br />
+	POST/GET: <a href="/form.php">Form</a><br />
 	Get Headers: <a href="/header.php">Headers</a><br />
 	Download: <a href="/test.zip">test.zip</a><br />
 	Current date & time: <?php echo date("d.m.Y, H:i:s");?><br />
